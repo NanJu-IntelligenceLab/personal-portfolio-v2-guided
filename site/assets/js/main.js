@@ -13,6 +13,10 @@ if (header && navigation && toggle) {
   }
   toggle.hidden = false;
   document.documentElement.classList.add('menu-ready');
+  let lastFocusedControl = null;
+  document.addEventListener('focusin', event => {
+    lastFocusedControl = navigation.contains(event.target) || event.target === toggle ? event.target : null;
+  });
   toggle.addEventListener('click', () => setMenu(toggle.getAttribute('aria-expanded') !== 'true'));
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') setMenu(false, true);
@@ -28,8 +32,13 @@ if (header && navigation && toggle) {
     }
   });
   narrow.addEventListener('change', () => {
-    const hiddenFocus = narrow.matches && navigation.contains(document.activeElement);
-    setMenu(false, hiddenFocus);
+    // CSS can hide a focused control before the media-query event is delivered.
+    const focused = lastFocusedControl || document.activeElement;
+    const fromNavigation = navigation.contains(focused);
+    const fromToggle = focused === toggle;
+    setMenu(false);
+    if (narrow.matches && fromNavigation) toggle.focus();
+    else if (!narrow.matches && fromToggle) navigation.querySelector('a')?.focus();
   });
 
   const sections = [...document.querySelectorAll('[data-section]')];
