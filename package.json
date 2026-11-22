@@ -1,0 +1,19 @@
+{
+  "name": "personal-portfolio-v2-guided",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "An independently implemented, human-guided academic and technical portfolio.",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "check": "node --check site/assets/js/main.js && node --check scripts/serve.mjs && node --check scripts/capture.mjs && node --check scripts/verify-isolation.mjs && node --check scripts/check-public-files.mjs && node scripts/check-public-files.mjs",
+    "test": "playwright test",
+    "capture": "node scripts/capture.mjs",
+    "verify:isolation": "node scripts/verify-isolation.mjs verify"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.65.1"
+  }
+}

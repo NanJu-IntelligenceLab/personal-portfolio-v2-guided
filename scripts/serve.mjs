@@ -1,0 +1,32 @@
+import { createServer } from 'node:http';
+import { readFile } from 'node:fs/promises';
+import { resolve, sep, extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const site = fileURLToPath(new URL('../site/', import.meta.url));
+const prefix = '/personal-portfolio-v2-guided';
+const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml' };
+const port = Number(process.env.PORT || 4273);
+createServer(async (request, response) => {
+  try {
+    if (!['GET', 'HEAD'].includes(request.method)) {
+      response.writeHead(405, { Allow: 'GET, HEAD' }).end();
+      return;
+    }
+    let pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
+    if (pathname === prefix) {
+      response.writeHead(302, { Location: `${prefix}/` }).end();
+      return;
+    }
+    if (pathname.startsWith(`${prefix}/`)) pathname = pathname.slice(prefix.length);
+    if (pathname.endsWith('/')) pathname += 'index.html';
+    const path = resolve(site, `.${pathname}`);
+    if (!path.startsWith(resolve(site) + sep)) {
+      response.writeHead(403).end();
+      return;
+    }
+    const content = await readFile(path);
+    response.writeHead(200, { 'Content-Type': types[extname(path)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
+    response.end(request.method === 'HEAD' ? undefined : content);
+  } catch { response.writeHead(404).end('Not found'); }
+}).listen(port, '127.0.0.1', () => console.log(`Local: http://127.0.0.1:${port}${prefix}/me-designed-page.html`));
