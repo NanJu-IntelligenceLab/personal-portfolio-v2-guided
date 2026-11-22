@@ -130,6 +130,7 @@ test('navigation and all substantive content work with JavaScript disabled', asy
     await expect(page.getByRole('navigation')).toBeVisible();
     await expect(page.locator('.menu-toggle')).toBeHidden();
     await page.getByRole('navigation').getByRole('link', { name: 'Projects', exact: true }).click();
+    expect(await page.locator('#projects .section-number').evaluate(node => node.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
     await expect(page.locator('.paper-title')).toBeVisible();
     await expect(page.locator('.iot-metrics dd').first()).toHaveText('1,000');
     await expect(page.locator('.doi-link')).toHaveAttribute('href', /doi\.org/);
